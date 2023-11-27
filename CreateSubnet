@@ -1,0 +1,65 @@
+class CreateSubnet:
+    '''
+        Implement Error Checking in all Class Methods
+    '''
+    def __init__(self, HostIpAddress, AmountOfHosts):
+        # Predefined Variables Set
+        self.HostIpAddress = HostIpAddress
+        self.AmountOfHosts = AmountOfHosts + 2
+        self.HostsOnSubnets = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+
+        # Dynamic Variables Set
+        self.ClosestHostBarriers = 0
+        self.SubnetMask = ''
+
+        # Class Methods Being Called
+        self.CalculateHostRange((len(self.HostsOnSubnets) - 1), (0), (0))
+        self.GetSubnetMask()
+        self.PrintSubnetInformation()
+
+    '''
+    Method CalculateHostRange, is a recursive function that will return the correct
+    amount of hosts that can be in the subnet, this is calculated off the users
+    desired hosts count in the subnet.
+    '''
+
+    def CalculateHostRange(self, Top, Bottom, index):
+        middle = (Bottom + int((Top - Bottom) / 2))
+        if index >= 3:
+            self.ClosestHostBarriers = self.HostsOnSubnets[Top]
+            return
+
+        if self.AmountOfHosts <= self.HostsOnSubnets[middle]:
+            self.CalculateHostRange(Top=middle, Bottom=Bottom, index=(index + 1))
+        else:
+            self.CalculateHostRange(Top=Top, Bottom=middle, index=(index + 1))
+
+
+    '''
+    Class Method GetSubnetMask, translates the amount of desired subnet hosts
+    and returns the subnet mask of the calculated subnet
+    '''
+    def GetSubnetMask(self):
+        subnetmask = int(256 / self.ClosestHostBarriers)
+        mask = 0
+        for i in range(0, (subnetmask)):
+            mask = (mask + (self.HostsOnSubnets[(len(self.HostsOnSubnets) - 2) - i]))
+        self.SubnetMask = f'255.255.255.{mask}'
+        return
+
+    '''
+    Class Method PrintSubnetInformation, takes in all calculated subnet information
+    and displays it to the user, providing all relevant subnet information
+    '''
+    def PrintSubnetInformation(self):
+        HostIpTail = int(self.HostIpAddress.split('.')[3])
+        BroadcastAddressTail = (int(self.HostIpAddress.split('.')[3]) + self.ClosestHostBarriers - 1)
+        BroadcastAddressHeadSplit = self.HostIpAddress.split('.')
+        BroadcastAddressHead = ''
+        for i in range(0, len(BroadcastAddressHeadSplit) - 1):
+            if i !=(len(BroadcastAddressHeadSplit) - 1):
+                BroadcastAddressHead += f'{BroadcastAddressHeadSplit[i]}.'
+            else:
+                BroadcastAddressHead += f'{BroadcastAddressHeadSplit[i]}'
+        print(f"---------------------------\nSubnet Host Address = {self.HostIpAddress}\nSubnet Broadcast Address = {f'{BroadcastAddressHead}{BroadcastAddressTail}'}")
+        print(f"Avaliable Hosts = {self.ClosestHostBarriers - 2}\nFirst Avaliable Host = {f'{BroadcastAddressHead}{HostIpTail + 1}'}\nLast Avaliable Host = {f'{BroadcastAddressHead}{BroadcastAddressTail - 1}'}\nSubnet Mask = {self.SubnetMask}/{24+int(256 / self.ClosestHostBarriers)}")
