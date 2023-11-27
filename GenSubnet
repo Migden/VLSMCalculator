@@ -1,0 +1,19 @@
+import sys
+from VLSMProject import CreateSubnet
+
+
+def main():
+    if len(sys.argv) != 3:
+        print('''
+        Usage: python3 ./main.py <Host Address> <Desired Subnet Hosts>
+        
+        Example: python3 ./main.py 192.168.0.1 72
+        
+        ''')
+    else:
+        HostAddress = sys.argv[1]
+        AmountOfSubnetHosts = sys.argv[2]
+        subnet = CreateSubnet(str(HostAddress), int(AmountOfSubnetHosts))
+
+if __name__ == "__main__":
+    main()
